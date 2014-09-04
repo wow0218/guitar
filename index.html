@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="target-densitydpi=device-dpi,width=640 user-scalable=0">
+<meta name="format-detection" content="telephone=no">
+<title>吉他</title>
+<meta name="Keywords" content="" />
+<meta name="Description" content="" />
+<style type="text/css">
+	html,body,div,h1,h2,h3,h4,h5,h6,p{margin: 0px;padding:0px;}
+	a{text-decoration: none;}
+	ul,li{list-style: none;margin: 0px;padding: 0px;}
+
+	body{width: 100%;height: 100%;font-family: inherit;background: #0e0036;}
+
+	#main{position: relative;width: 100%;height: 1136px;margin: 0 auto;max-width: 640px;min-width: 640px;
+		background:#000;overflow:hidden;
+		background: url(images/bg.jpg) center center no-repeat;
+	}
+	#qin{
+		position: relative;width: 640px;height: 1136px;
+		left:50%;top:50%;
+		margin-left: -320px;margin-top: -568px;
+	}
+	#jitacover{
+		position: absolute;width: 174px;height: 925px;
+		left:50%;top:50%;
+		margin-left: -87px;margin-top: -357px;
+		/*background: url(../images/line.png) center top no-repeat;*/
+	}
+</style>
+<script type="text/javascript">
+	var config={};
+	function resizeHandler(){
+		var ww=window.innerWidth,
+			wh=window.innerHeight;
+		document.getElementById("main").style["height"]=wh+"px";
+	}
+		
+	function drawLine(cvs){
+		var ctx=cvs.getContext("2d");
+		ctx.clearRect(0,0,cvs.width,cvs.height);
+		var img=document.getElementById("xian");
+		// var img=new Image();
+		// img.onload=function(){
+		// 	var pat=ctx.createPattern(this,"repeat-x");
+		// 	ctx.strokeStyle=pat;
+		// 	ctx.lineWidth=2;
+		// 	drawlineIndex(ctx,2);
+		// 	drawlineIndex(ctx,0);
+		// 	drawlineIndex(ctx,1);
+		// 	drawlineIndex(ctx,3);
+		// 	drawlineIndex(ctx,4);
+		// }
+
+		// img.src="assets/m1.mp3";
+		var pat=ctx.createPattern(img,"repeat-x");
+			ctx.strokeStyle=pat;
+			ctx.lineWidth=2;
+			drawlineIndex(ctx,2);
+			drawlineIndex(ctx,0);
+			drawlineIndex(ctx,1);
+			drawlineIndex(ctx,3);
+			drawlineIndex(ctx,4);
+		return cvs;
+	}
+	function drawlineIndex(ctx,index,beArt,dpos){
+		dpos =dpos || 0;
+		var begin=[[40,0],[63,0],[87,0],[111,0],[134,0]];
+		var end=[[20,903],[54,903],[87,903],[120,903],[154,903]];
+		ctx.beginPath();
+		ctx.moveTo(begin[index][0],begin[index][1]);
+		if(!!beArt){
+			ctx.quadraticCurveTo((begin[index][0]+end[index][0])/2 +dpos,451,end[index][0],end[index][1]);
+		}else{
+			ctx.lineTo(end[index][0],end[index][1]);
+		}
+		ctx.stroke();
+	}
+	/* // jQuery.easing.1.3.js    */
+	function easeOutBounce(x, t, b, c, d) {
+		if ((t/=d) < (1/2.75)) {
+			return c*(7.5625*t*t) + b;
+		} else if (t < (2/2.75)) {
+			return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+		} else if (t < (2.5/2.75)) {
+			return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+		} else {
+			return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+		}
+	}
+	function lineAnimate(cvs,index,begin,end,during,easing,cstep){
+		var pertime=10;	//执行间隔 毫秒
+		cstep=cstep || 1;//当前执行的第几步
+		var steps=parseInt(during/pertime);//共需要执行步数
+		var t=cstep/steps //当前执行分量
+		begin = begin || 0;
+		end = end || 0;
+		//开始画线
+		var ctx=cvs.getContext("2d");
+		ctx.clearRect(0,0,cvs.width,cvs.height);
+		var img=document.getElementById("xian");
+		var pat=ctx.createPattern(img,"repeat-x");
+		ctx.strokeStyle=pat;
+		ctx.lineWidth=2;
+		var array=[0,1,2,3,4];
+		var dt=begin+t*(end-begin);
+		if(easing=="Out"){
+			dt=easeOutBounce(t,t,0,1,1) * (end-begin)+begin;
+		}
+		drawlineIndex(ctx,index,true,dt);
+		array.splice(index,1);
+		for(var i=0;i<array.length;i++){
+			drawlineIndex(ctx,array[i]);
+		}
+		if(cstep<steps){
+			setTimeout(function(){
+				lineAnimate(cvs,index,begin,end,during,easing,cstep+1);
+			},pertime);
+		}
+	}
+	function reloadMusic(index){//不加载 index
+		var mId=["M1","M2","M3","M4","BGM"];
+		for(var i=0;i<mId.length && i!=index;i++){
+			var m=document.getElementById(mId[i]);
+			if(m.readyState !==4){
+				typeof(m.load)=='function' && m.load();
+			}
+		}
+	}
+	function playMusic(index){
+		var mId=["M1","M2","M3","M4"];
+		var music=document.getElementById(mId[index]);
+		if(!!music && music.currentTime!=0){//&& typeof(music.currentTime) !="undefined"
+			music.currentTime=0;
+		}
+		typeof(music.play)=='function' && music.play();
+	}
+	function pauseMusic(index){
+		var mId=["M1","M2","M3","M4"];
+		var music=document.getElementById(mId[index]);
+		!music.paused && typeof(music.pause)=='function' && music.pause();
+		if(index==4){
+			if(!!music.paused){
+				$("#btn_sound").removeClass("beplay");
+			}else{
+				$("#btn_sound").addClass("beplay");
+			}
+		}
+	}
+	function resetMusic(index){
+		var mId=["M1","M2","M3","M4"];
+		var music=document.getElementById(mId[index]);
+		if(!!music && typeof(music.currentTime) !='undefined'){
+			music.currentTime=0;
+		}
+	}
+
+	function touchMoveHandler(e){
+		e = e || window.event;
+	    if(!!config.bemove){return;}
+	    config.bemove=true;
+	    var cvs=document.getElementById("jitaxian");
+	    var index=Math.floor(Math.random()*5);
+	    config.playtimes = (config.playtimes || 0) +1;
+	    var mIndex= (config.playtimes-1)%4;
+	    var endX=!!e.changedTouches ? e.changedTouches[0].pageX:e.pageX,
+	        endY=!!e.changedTouches ? e.changedTouches[0].pageY:e.pageY;
+	    if(endX-startX>=75){ //向右滑动
+	        lineAnimate(cvs,index,0,30,100,"",1);
+	        playMusic(mIndex);
+	    	setTimeout(function(){
+	    		lineAnimate(cvs,index,25,0,300,"Out",1);
+	    	},100);
+	    	setTimeout(function(){
+	    		config.bemove=false;
+	    	},400);
+	    }else if(endX-startX<=-75){//向左滑动
+	    	lineAnimate(cvs,index,0,-30,100,"",1); 
+	    	playMusic(mIndex);
+	    	setTimeout(function(){
+	    		lineAnimate(cvs,index,-30,0,300,"Out",1);
+	    	},100);
+	    	setTimeout(function(){
+	    		config.bemove=false;
+	    	},400);
+	    }else{
+	    	config.bemove=false;
+	    }
+	}
+	var startX,startY;
+	function onloaded(){
+		document.addEventListener('touchmove', function (e) { 
+			e.preventDefault(); 
+		},false);
+		window.onresize=resizeHandler;
+		resizeHandler();
+
+		document.getElementById("main").addEventListener("ontouchmove" in document ? "touchmove" : "mousemove",function(e){
+			//_.stopmove=true;
+		},false);
+	    document.getElementById("main").addEventListener("ontouchstart" in document ? "touchstart" : "mousedown",function(e){
+	        e = e || window.event;
+	        startX= !!e.changedTouches ? e.changedTouches[0].pageX:e.pageX;
+	        startY= !!e.changedTouches ? e.changedTouches[0].pageY:e.pageY;
+	    },false);
+	    document.getElementById("main").addEventListener("ontouchend" in document ? "touchend" : "mouseup",touchMoveHandler,false);
+
+	    drawLine(document.getElementById("jitaxian"));
+	}
+</script>
+</head>
+<body onload="onloaded();">
+<div id="main">
+	<div style="position: absolute;width:100%;height:0px;overflow: hidden;left:-1000px;top:0px;">
+		<img src="images/line.png" id="xian" />
+		<audio id="M1" preload="preload">
+            <source src="assets/m1.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="M2" preload="preload">
+            <source src="assets/m2.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="M3" preload="preload">
+            <source src="assets/m3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="M4" preload="preload">
+            <source src="assets/m4.mp3" type="audio/mpeg">
+        </audio>
+	</div>
+	<div id="qin"><img src="images/jita.png" /></div>
+	<div class="qinxian" id="jitacover"><canvas id="jitaxian" width="174" height="925"></canvas></div>
+</div>
+</body>
+</html>
